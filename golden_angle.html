@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Angle SVG</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .svg-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: calc(100vh - 50px);
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="changePoints(-1)">-</button>
+        <input type="number" id="numPointsInput" value="0" min="0" max="10000" onchange="updateSvg()">
+        <button onclick="changePoints(1)">+</button>
+        <button onclick="changeRadius(-10)">-</button>
+        <input type="number" id="radiusInput" value="200" min="50" max="400" onchange="updateSvg()">
+        <button onclick="changeRadius(10)">+</button>
+        <button onclick="changeFontSize(-1)">-</button>
+        <input type="number" id="fontSizeInput" value="16" min="5" max="50" onchange="updateSvg()">
+        <button onclick="changeFontSize(1)">+</button>
+        <button onclick="changeTextDistance(-5)">-</button>
+        <input type="number" id="textDistanceInput" value="15" min="0" max="100" onchange="updateSvg()">
+        <button onclick="changeTextDistance(5)">+</button>
+    </div>
+    
+    <div class="svg-container">
+        <svg id="goldenAngleSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 440" preserveAspectRatio="xMidYMid meet">
+            <circle cx="220" cy="220" r="200" stroke="black" stroke-width="2" fill="none" />
+        </svg>
+    </div>
+    
+    <script>
+        let radius = 200;
+        let fontSize = 16;
+        let textDistance = 15;
+        const goldenAngle = 137.5 * (Math.PI / 180);
+        const svg = document.getElementById("goldenAngleSvg");
+        const numPointsInput = document.getElementById("numPointsInput");
+        const radiusInput = document.getElementById("radiusInput");
+        const fontSizeInput = document.getElementById("fontSizeInput");
+        const textDistanceInput = document.getElementById("textDistanceInput");
+
+        function updateSvg() {
+            let numPoints = parseInt(numPointsInput.value);
+            if (numPoints < 0) numPoints = 0;
+            radius = parseInt(radiusInput.value);
+            fontSize = parseInt(fontSizeInput.value);
+            textDistance = parseInt(textDistanceInput.value);
+            svg.innerHTML = `<circle cx="220" cy="220" r="${radius}" stroke="black" stroke-width="2" fill="none" />`;
+            let points = [];
+            
+            const cx = 220, cy = 220;
+            for (let i = 0; i <= numPoints; i++) { // Show up to and including numPoints
+                let angle = i * goldenAngle;
+                let x = cx + radius * Math.cos(angle);
+                let y = cy + radius * Math.sin(angle);
+                points.push({ x, y });
+
+                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", "5");
+                circle.setAttribute("fill", "red");
+                svg.appendChild(circle);
+
+                let textX = cx + (radius + textDistance) * Math.cos(angle);
+                let textY = cy + (radius + textDistance) * Math.sin(angle);
+                let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", textX);
+                text.setAttribute("y", textY);
+                text.setAttribute("font-size", fontSize);
+                text.setAttribute("fill", "black");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.textContent = i; // Marker numbering starts at 0
+                svg.appendChild(text);
+            }
+
+            for (let i = 0; i < points.length - 1; i++) {
+                let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", points[i].x);
+                line.setAttribute("y1", points[i].y);
+                line.setAttribute("x2", points[i + 1].x);
+                line.setAttribute("y2", points[i + 1].y);
+                line.setAttribute("stroke", "blue");
+                line.setAttribute("stroke-width", "2");
+                svg.appendChild(line);
+            }
+        }
+
+        function changePoints(delta) {
+            let newValue = parseInt(numPointsInput.value) + delta;
+            if (newValue >= 0 && newValue <= 10000) {
+                numPointsInput.value = newValue;
+                updateSvg();
+            }
+        }
+
+        function changeRadius(delta) {
+            let newValue = parseInt(radiusInput.value) + delta;
+            if (newValue >= 50 && newValue <= 400) {
+                radiusInput.value = newValue;
+                updateSvg();
+            }
+        }
+
+        function changeFontSize(delta) {
+            let newValue = parseInt(fontSizeInput.value) + delta;
+            if (newValue >= 5 && newValue <= 50) {
+                fontSizeInput.value = newValue;
+                updateSvg();
+            }
+        }
+
+        function changeTextDistance(delta) {
+            let newValue = parseInt(textDistanceInput.value) + delta;
+            if (newValue >= 0 && newValue <= 100) {
+                textDistanceInput.value = newValue;
+                updateSvg();
+            }
+        }
+
+        updateSvg();
+    </script>
+</body>
+</html>
